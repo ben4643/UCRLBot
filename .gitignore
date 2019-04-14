@@ -6,6 +6,9 @@ yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
 
+# replay folder
+replays/
+
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
@@ -82,3 +85,5 @@ typings/
 
 # DynamoDB Local files
 .dynamodb/
+package-lock.json
+settings.json
