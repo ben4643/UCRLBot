@@ -1,0 +1,10 @@
+{
+    "name": "ucrl-bot",
+    "version": "1.0.0",
+    "description": "A bot for University of Cincinnati Rocket League team",
+    "main": "index.js",
+    "author": "Ben \"B++\" Miller",
+    "dependencies": {
+        "discord.js": "^11.4.2"
+    }
+}
