@@ -19,31 +19,22 @@ client.on("message", async message => {
     
     if(message.attachments.size > 0){
         console.log('detected file');
-        var converted;
         var cwd = __dirname
         var url = message.attachments.find(grabURL).url;
         var isReplay = message.attachments.find(checkFile);
         console.log(url);
         if(isReplay){
-            //console.log('downloading maybe???????????');
-            message.react('⏰');
-            replay.download(url);
-            converted = replay.convert(cwd,url,message)
-            // if(converted){
-            //     message.react('❌');
-            // }else{
-            //     message.react('✅');
-            // }
+            replay.run(url,cwd,message);
         }
     }
 
     if(message.content.startsWith(prefix)){
-        switch(command){
+        switch(command.toLowerCase()){
             case 'ping':
                 message.channel.send('Pong!');
                 break;
             default:
-                message.channel.send('Command not found try again');
+                //message.channel.send('Command not found try again');
                 break;
         }
     }
