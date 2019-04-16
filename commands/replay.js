@@ -3,23 +3,27 @@ const https = require('https');
 const fs = require('fs');
 
 var fileName;
+var jsonFilePath;
+var replayFilePath;
 
 module.exports = {
 
-    run: function (url, cwd, msg) {
-        msg.react('⏰');
-        this.download(url).then(() => {
-            this.convert(url, cwd, msg).then(() => {
-                msg.react('✅');
-            }, (err) => {
-                console.log(err);
-                msg.react('❌');
+    run: function (url, cwd, message) {
+        return new Promise((resolve, reject) => {
+            message.react('⏰').then(() => {
+                this.download(url).then(() => {
+                    this.convert(cwd).then(() => {
+                        this.grabData(jsonFilePath,message);
+                        resolve();
+                    }, (err) => {
+                        reject(err);
+                        //TODO: When failing delete files that failed as to save storage
+                    });
+                }, (err) => {
+                    reject(err);
+                });
             });
-        }, (err) => {
-            console.log(err);
-            msg.react('❌');
         });
-        //this.convert(url, cwd, msg);
     },
 
     download: function (url) {
@@ -40,13 +44,13 @@ module.exports = {
         });
     },
 
-    convert: function (url, cwd, msg) {
+    convert: function (cwd) {
         return new Promise((resolve, reject) => {
             console.log(cwd);
-            var jsonjFilePath = cwd + '/replays/json/' + fileName;
-            var replayFilePath = cwd + '/replays/replay/' + fileName;
+            jsonFilePath = cwd + '\\replays\\json\\' + fileName;
+            replayFilePath = cwd + '\\replays\\replay\\' + fileName;
             const { exec } = require('child_process');
-            exec('rattletrap -i ' + replayFilePath + '.replay > ' + jsonjFilePath + '.json', (err, stdout, stderr) => {
+            exec('rattletrap -ci ' + replayFilePath + '.replay > ' + jsonFilePath + '.json', (err, stdout, stderr) => {
                 console.log('Running Parser');
                 if (err) {
                     console.log('Error in replay.js convert function');
@@ -58,5 +62,44 @@ module.exports = {
                 }
             });
         });
+    },
+    /*
+    Need to grab:
+    ID
+    Player Name
+    Score
+    Goals
+    Assists
+    Saves
+    Anything else useful
+    Replay Name
+    Date
+
+    Path to player stats
+    "jsonFile"
+    "header"
+    "body"
+    "properties" Where the mass amount of info starts
+    "value"
+    "PlayerStats"
+    "value"
+    "array" Where each person starts maybe make an object out of each one?
+    "value"
+    "Stat" Assists, Goals, OnlineID etc.
+    "value" value of Stat
+    */
+    grabData: function (jsonFilePath, message) {
+        console.log(jsonFilePath);
+        const jsonFile = require(jsonFilePath+".json");
+        var playerStats = jsonFile.header.body.properties.value.PlayerStats.value;
+        console.log(playerStats.array.length);
+        message.channel.send('Found '+playerStats.array.length+' players');
+        for(var i = 0; i<playerStats.array.length; i++){
+            var playerID = playerStats.array[i].value.OnlineID.value.q_word
+            var playerName = playerStats.array[i].value.Name.value.str;
+            message.channel.send('Found Player ID for '+playerName+' it is '+playerID);
+        }
+
+
     }
 }

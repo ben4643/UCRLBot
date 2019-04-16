@@ -24,7 +24,12 @@ client.on("message", async message => {
         var isReplay = message.attachments.find(checkFile);
         console.log(url);
         if(isReplay){
-            replay.run(url,cwd,message);
+            replay.run(url,cwd,message).then(() => {
+                message.react('✅');
+            }, (err) => {
+                console.log(err);
+                message.react('❌');
+            });
         }
     }
 
@@ -33,8 +38,11 @@ client.on("message", async message => {
             case 'ping':
                 message.channel.send('Pong!');
                 break;
+            // case 'json'://remove this its just for testing
+            //     message.react('✅');
+            //     replay.grabData('C:\\Users\\themi\\Documents\\Projects\\UCRLBot\\replays\\json\\test', message);
+            //     break;
             default:
-                //message.channel.send('Command not found try again');
                 break;
         }
     }
